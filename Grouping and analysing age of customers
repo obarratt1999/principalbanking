@@ -1,0 +1,85 @@
+with t as
+(
+select *,
+case 
+when age <=10 then '0 to 10'
+when age <=20 then '10 to 20'
+when age <=30 then '20 to 30'
+when age <=40 then '30 to 40'
+when age <=50 then '40 to 50'
+when age <=60 then '50 to 60'
+when age <=70 then '60 to 70'
+when age <=80 then '70 to 80'
+when age >80 then '80+'
+end as age_range
+from client2)
+select age_range, count(*)
+from t 
+group by age_range
+order by age_range
+
+select * from account2
+select * from district
+select * from accountref
+
+select top 1000 * from trans2
+
+select * from customer_ranking_dist
+where rnk <=1000
+
+select * from disp
+select * from client2
+-- customer ranking dis to disp via account id 
+--disp to client id to client 2 via client id 
+
+
+select * from customer_ranking_dist
+join disp
+on customer_ranking_dist.account_id = disp.account_id
+join client2 on disp.client_id = client2.client_id
+
+where rnk <= 1000
+order by rnk
+--case when for grouping age
+with t as
+(select *,
+case 
+when age <=10 then '0 to 10'  when age <=20 then '10 to 20'
+when age <=30 then '20 to 30' when age <=40 then '30 to 40'
+when age <=50 then '40 to 50' when age <=60 then '50 to 60'
+when age <=70 then '60 to 70' when age <=80 then '70 to 80'
+when age >80 then '80+'       end as age_range
+from client2), x as 
+(select age_range, client_id, count(*) as num_of_customers
+from t 
+group by age_range, client_id)
+
+--age ranges of top 1000
+select  x.age_range, count(*)from customer_ranking_dist
+join disp
+on customer_ranking_dist.account_id = disp.account_id
+join x on disp.client_id = x.client_id
+where rnk <= 1000
+group by  x.age_range
+
+
+
+--district of top 1000
+select district_id, [district name], region, 
+count(district_id) as district_count
+from customer_ranking_dist
+where rnk <=1000
+group by [district name], district_id, region
+order by district_count desc;
+
+-- gender of clients
+with t as 
+(select *, 
+case 
+when male = 1 then 'male'
+when male = 0 then 'female'
+end as gender 
+from client2)
+select gender, count (*) as frequency 
+from t 
+group by gender 
